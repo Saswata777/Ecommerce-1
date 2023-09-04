@@ -23,7 +23,7 @@ const Context = ({children}) => {
     empty slots.
     */ 
 
-   const products = Array(18).fill().map((_, index)=>({
+   const products = Array(80).fill().map((_, index)=>({
      id: index+1,
      name: faker.commerce.productName(),
      price: faker.commerce.price(),
@@ -34,11 +34,21 @@ const Context = ({children}) => {
      ratings : faker.helpers.arrayElement([1, 2, 3, 4, 5]),
     }))
 
+    faker.seed(100)
+
     // console.log(products);
     
     const [state, dispatch] = useReducer(cartReducer , {
       products: products,
       cart: [],
+    })
+
+    const [productState , productDispatch] = useReducer(productReducer,{
+      byStock:false,
+      byFastDelivery: false,
+      byrating :0,
+      bySearchQuery:''
+
     })
 
 
@@ -56,7 +66,7 @@ const Context = ({children}) => {
 
 
   return (
-    <Cart.Provider value={{state, dispatch}}>{children}</Cart.Provider>
+    <Cart.Provider value={{state, dispatch, productState , productDispatch}}>{children}</Cart.Provider>
   )
 }
 
@@ -64,4 +74,38 @@ export default Context
 
 export const CartState = ()=>{
   return useContext(Cart);
+}
+
+
+export const productReducer = (state, action)=>{
+    switch (action.type) {
+      
+        case 'SORT_BY_PRICE':
+        return {...state, sort: action.payload};
+      
+        case 'FILTER_BY_STOCK':
+        return {...state, byStock : !state.byStock};  
+      
+        case 'FILTER_BY_DELIVERY':
+        return {...state, byFastDelivery : !state.byFastDelivery};  
+      
+        case 'FILTER_BY_RATING':
+        return {...state,  byrating: action.payload};  
+      
+        case 'FILTER_BY_SEARCH':
+        return {...state,  bySearchQuery: action.payload};  
+
+        case 'CLEAR_FILTER':
+          return {
+            byStock:false,
+            byFastDelivery: false,
+            byrating : 0,
+            bySearchQuery:''
+      
+          }
+      
+    
+      default:
+        return state;
+    }
 }
